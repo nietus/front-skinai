@@ -506,8 +506,25 @@ function showSettings() {
   const modal = document.getElementById("settingsModal");
   const input = document.getElementById("apiUrlInput");
 
-  // Load current API URL
-  input.value = CONFIG.API_BASE_URL;
+  // Load current API URL from localStorage
+  const currentUrl = CONFIG.API_BASE_URL;
+  input.value = currentUrl || "";
+
+  // Add event listener for real-time saving (if not already added)
+  if (!input.dataset.listenerAdded) {
+    input.addEventListener("input", () => {
+      const url = input.value.trim();
+      if (url) {
+        try {
+          new URL(url);
+          CONFIG.API_BASE_URL = url;
+        } catch (error) {
+          // Invalid URL, wait for user to finish typing
+        }
+      }
+    });
+    input.dataset.listenerAdded = "true";
+  }
 
   modal.classList.add("active");
 }
@@ -555,23 +572,37 @@ function initLoginApiConfig() {
   const input = document.getElementById("login-api-url");
 
   if (input) {
-    // Load current value from localStorage
+    // Always load current value from localStorage on page load
     const savedUrl = CONFIG.API_BASE_URL;
     if (savedUrl) {
       input.value = savedUrl;
+      console.log("Loaded saved API URL:", savedUrl);
     }
 
-    // Save on input change (real-time saving)
+    // Save on input change (real-time saving with debounce)
+    let saveTimeout;
     input.addEventListener("input", () => {
       const url = input.value.trim();
-      if (url) {
-        try {
-          new URL(url);
-          CONFIG.API_BASE_URL = url;
-        } catch (error) {
-          // Invalid URL, but don't show error yet - wait until they're done typing
+
+      // Clear previous timeout
+      clearTimeout(saveTimeout);
+
+      // Debounce save to avoid too many writes
+      saveTimeout = setTimeout(() => {
+        if (url) {
+          try {
+            new URL(url);
+            CONFIG.API_BASE_URL = url;
+            console.log("API URL saved:", url);
+          } catch (error) {
+            // Invalid URL, but don't show error yet - wait until they're done typing
+          }
+        } else {
+          // Allow clearing the URL
+          localStorage.removeItem("skinia_api_url");
+          console.log("API URL cleared");
         }
-      }
+      }, 500); // Wait 500ms after user stops typing
     });
 
     // Validate on blur
