@@ -649,27 +649,6 @@ async function triggerElection() {
     }
 }
 
-// Run mutual exclusion demo
-async function runMutexDemo() {
-    try {
-        showNotification('Running mutual exclusion demo...', 'info');
-        const result = await api.runMutexDemo();
-
-        const message = `Mutex demo completed on node ${result.node_id}!\n` +
-                       `Clock advanced from ${result.lamport_clock_before} to ${result.lamport_clock_after} ` +
-                       `(+${result.clock_increments} ticks)`;
-
-        showNotification(message, 'success', 8000);
-
-        // Refresh status
-        setTimeout(() => {
-            showDistributedStatus();
-        }, 1000);
-    } catch (error) {
-        showNotification('Failed to run mutex demo: ' + error.message, 'error');
-        console.error('Mutex demo error:', error);
-    }
-}
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {

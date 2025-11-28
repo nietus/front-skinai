@@ -281,27 +281,6 @@ class SkinIAAPI {
     }
   }
 
-  // Run mutex demo
-  async runMutexDemo() {
-    try {
-      const response = await fetch(
-        `${this.baseURL}/v1/distributed/critical-section-demo`,
-        {
-          method: "POST",
-          headers: this.getHeaders(),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Mutex demo failed: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Mutex demo error:", error);
-      throw error;
-    }
-  }
 }
 
 // Create global API instance
